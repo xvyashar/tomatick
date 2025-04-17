@@ -12,7 +12,8 @@ private val DarkColorScheme = darkColorScheme(
     secondaryContainer = DarkSecondaryContainer,
     tertiary = Pink80,
 
-    background = DarkScreen
+    background = DarkScreen,
+    surface = DarkSurface
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -22,6 +23,7 @@ private val LightColorScheme = lightColorScheme(
     tertiary = Pink40,
 
     background = LightScreen,
+    surface = LightSurface
 
     /* Other default colors to override
 

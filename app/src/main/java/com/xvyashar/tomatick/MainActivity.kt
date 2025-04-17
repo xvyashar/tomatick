@@ -4,9 +4,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -18,10 +22,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.xvyashar.tomatick.ui.theme.TomatickTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.painterResource
 import com.xvyashar.tomatick.composables.BottomNavItem
 import com.xvyashar.tomatick.composables.BottomNavigationBar
 import com.xvyashar.tomatick.composables.screens.HomeScreen
@@ -51,10 +57,31 @@ fun MainScreen() {
             )
         },
         topBar = {
-            Row (
-                modifier = Modifier.padding(start = 32.dp, top = 84.dp)
+            Box (
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 32.dp, vertical = 84.dp)
             ) {
-                Text(stringResource(id = R.string.app_name).uppercase(), color = MaterialTheme.colorScheme.primary, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    text = stringResource(id = R.string.app_name).uppercase(),
+                    color = MaterialTheme.colorScheme.primary,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.align(Alignment.CenterStart)
+                )
+
+                IconButton(
+                    onClick = { /* TODO: reset logic */ },
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .background(color = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(12.dp))
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.reset_vector),
+                        contentDescription = "Reset",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
         },
     ) {
