@@ -75,7 +75,7 @@ fun CircularContainer(
                         setShadowLayer(
                             50f,
                             50f, 50f,
-                            if (isDark) android.graphics.Color.argb(25, 0, 0, 0) else android.graphics.Color.argb(50, 255, 255, 255) // white-ish glow
+                            if (isDark) android.graphics.Color.argb(25, 255, 255, 255) else android.graphics.Color.argb(50, 255, 255, 255) // white-ish glow
                         )
                     }
 
