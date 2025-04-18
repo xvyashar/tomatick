@@ -4,8 +4,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.xvyashar.tomatick.ui.theme.TomatickTheme
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.stringResource
@@ -70,25 +74,47 @@ fun MainScreen() {
                     modifier = Modifier.align(Alignment.CenterStart)
                 )
 
-                IconButton(
-                    onClick = { /* TODO: reset logic */ },
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .background(color = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(12.dp))
+                Row (
+                    modifier = Modifier.align(Alignment.CenterEnd),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Icon(
-                        painter = painterResource(R.drawable.reset_vector),
-                        contentDescription = "Reset",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
+                    IconButton(
+                        onClick = { /* TODO: reset logic */ },
+                        modifier = Modifier
+                            .background(color = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(12.dp))
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.reset_vector),
+                            contentDescription = "Reset",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+
+                    var playButtonVector by remember { mutableIntStateOf(R.drawable.play_vector) }
+
+                    IconButton(
+                        onClick = {
+                            playButtonVector = if (playButtonVector == R.drawable.play_vector) R.drawable.pause_vector else R.drawable.play_vector
+                        },
+                        modifier = Modifier
+                            .background(color = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(12.dp))
+                    ) {
+                        Icon(
+                            painter = painterResource(playButtonVector),
+                            contentDescription = "Play",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
                 }
             }
         },
     ) {
         Box(modifier = Modifier.padding(it)) {
-            when (selectedTab) {
-                BottomNavItem.Home -> HomeScreen()
-                BottomNavItem.Settings -> SettingsScreen()
+            AnimatedContent(targetState = selectedTab) { screen ->
+                when (screen) {
+                    BottomNavItem.Home -> HomeScreen()
+                    BottomNavItem.Settings -> SettingsScreen()
+                }
             }
         }
     }

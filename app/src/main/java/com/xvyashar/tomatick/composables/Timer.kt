@@ -34,7 +34,7 @@ fun Timer(
     size: Dp = 200.dp
 ) {
     CircularContainer(color = color, size = size, modifier = modifier) {
-        TimerIndicator(Modifier, 0.75f, "25:00")
+        TimerIndicator(Modifier, 1f, "25:00")
     }
 }
 
