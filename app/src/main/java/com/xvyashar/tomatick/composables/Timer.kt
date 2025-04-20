@@ -23,15 +23,14 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 @Composable
 fun Timer(
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colorScheme.primary,
-    size: Dp = 200.dp
+    size: Dp = 200.rdp
 ) {
     CircularContainer(color = color, size = size, modifier = modifier) {
         TimerIndicator(Modifier, 1f, "25:00")
@@ -42,7 +41,7 @@ fun Timer(
 fun CircularContainer(
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colorScheme.primary,
-    size: Dp = 200.dp,
+    size: Dp = 200.rdp,
     content: @Composable () -> Unit
 ) {
     val isDark = isSystemInDarkTheme()
@@ -108,14 +107,14 @@ fun TimerIndicator(
     progress: Float = 0.75f,
     text: String
 ) {
+    val arcStroke = with (LocalDensity.current) { 8.rdp.toPx() }
+    val arcGap = with (LocalDensity.current) { 18.rdp.toPx() }
+
     Box(
         modifier = modifier
             .aspectRatio(1f)
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
-            val arcStroke = 10.dp.toPx()
-            val arcGap = 20.dp.toPx()
-
             val diameter = size.minDimension
 
             val arcSize = Size(
@@ -137,7 +136,7 @@ fun TimerIndicator(
         Text(
             text = text,
             color = Color.White,
-            fontSize = 32.sp,
+            fontSize = 30.rsp,
             modifier = Modifier.align(Alignment.Center)
         )
     }

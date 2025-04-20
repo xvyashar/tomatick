@@ -16,8 +16,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 @Composable
 fun BottomNavigationBar(
@@ -34,13 +32,13 @@ fun BottomNavigationBar(
                 icon = {
                     Row (
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.rdp),
+                        modifier = Modifier.padding(horizontal = 8.rdp, vertical = 8.rdp)
                     ) {
                         Icon(imageVector = item.icon, contentDescription = item.label)
 
                         if (selectedTab == item) {
-                            Text(item.label, fontSize = 14.sp)
+                            Text(item.label, fontSize = 14.rsp)
                         }
                     }
                 },

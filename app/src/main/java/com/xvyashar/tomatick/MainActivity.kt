@@ -29,11 +29,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.painterResource
 import com.xvyashar.tomatick.composables.BottomNavItem
 import com.xvyashar.tomatick.composables.BottomNavigationBar
+import com.xvyashar.tomatick.composables.rdp
+import com.xvyashar.tomatick.composables.rsp
 import com.xvyashar.tomatick.composables.screens.HomeScreen
 import com.xvyashar.tomatick.composables.screens.SettingsScreen
 
@@ -64,24 +64,24 @@ fun MainScreen() {
             Box (
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 32.dp, vertical = 84.dp)
+                    .padding(horizontal = 28.rdp, vertical = 75.rdp)
             ) {
                 Text(
                     text = stringResource(id = R.string.app_name).uppercase(),
                     color = MaterialTheme.colorScheme.primary,
-                    fontSize = 24.sp,
+                    fontSize = 22.rsp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.align(Alignment.CenterStart)
                 )
 
                 Row (
                     modifier = Modifier.align(Alignment.CenterEnd),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.rdp)
                 ) {
                     IconButton(
                         onClick = { /* TODO: reset logic */ },
                         modifier = Modifier
-                            .background(color = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(12.dp))
+                            .background(color = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(12.rdp))
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.reset_vector),
@@ -97,7 +97,7 @@ fun MainScreen() {
                             playButtonVector = if (playButtonVector == R.drawable.play_vector) R.drawable.pause_vector else R.drawable.play_vector
                         },
                         modifier = Modifier
-                            .background(color = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(12.dp))
+                            .background(color = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(12.rdp))
                     ) {
                         Icon(
                             painter = painterResource(playButtonVector),

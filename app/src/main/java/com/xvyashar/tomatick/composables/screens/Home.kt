@@ -17,13 +17,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import com.xvyashar.tomatick.composables.Timer
+import com.xvyashar.tomatick.composables.rdp
+import com.xvyashar.tomatick.composables.rsp
 
 @Composable
 fun HomeScreen() {
@@ -32,9 +33,9 @@ fun HomeScreen() {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(64.dp)
+            verticalArrangement = Arrangement.spacedBy(48.rdp)
         ) {
-            Timer(color = MaterialTheme.colorScheme.primary, size = 256.dp)
+            Timer(color = MaterialTheme.colorScheme.primary, size = 232.rdp)
 
             CustomTabRow(tabs = listOf("Short break", "Pomodoro", "Long break"), selectedTabIndex = selected) { selectedIndex ->
                 selected = selectedIndex
@@ -49,8 +50,8 @@ fun CustomTabRow(
     selectedTabIndex: Int,
     onTabSelected: (Int) -> Unit
 ) {
-    val indicatorHeight = 6.dp
-    val indicatorWidth = 6.dp
+    val indicatorHeight = 6.rdp
+    val indicatorWidth = 6.rdp
 
     TabRow(
         selectedTabIndex = selectedTabIndex,
@@ -71,7 +72,7 @@ fun CustomTabRow(
             )
         },
         divider = {},
-        modifier = Modifier.padding(start = 32.dp, end = 32.dp)
+        modifier = Modifier.padding(start = 28.rdp, end = 28.rdp)
     ) {
         tabs.forEachIndexed { index, title ->
             Tab(
@@ -81,6 +82,7 @@ fun CustomTabRow(
                 text = {
                     Text(
                         text = title,
+                        fontSize = 12.rsp,
                         color = if (index == selectedTabIndex)
                             MaterialTheme.colorScheme.primary
                         else
