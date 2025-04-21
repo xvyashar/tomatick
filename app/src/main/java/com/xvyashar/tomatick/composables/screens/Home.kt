@@ -15,31 +15,37 @@ import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.xvyashar.tomatick.TimerViewModel
 import com.xvyashar.tomatick.composables.Timer
 import com.xvyashar.tomatick.composables.rdp
 import com.xvyashar.tomatick.composables.rsp
 
 @Composable
-fun HomeScreen() {
-    var selected by remember { mutableIntStateOf(1) }
+fun HomeScreen(viewModel: TimerViewModel = viewModel()) {
+    val context = LocalContext.current.applicationContext
+
+    DisposableEffect(Unit) {
+        viewModel.registerReceiver(context)
+
+        onDispose {
+            viewModel.unregisterReceiver(context)
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(48.rdp)
         ) {
-            Timer(color = MaterialTheme.colorScheme.primary, size = 232.rdp)
+            Timer(color = MaterialTheme.colorScheme.primary, size = 232.rdp, text = viewModel.timerText, progress = viewModel.timerProgress)
 
-            CustomTabRow(tabs = listOf("Short break", "Pomodoro", "Long break"), selectedTabIndex = selected) { selectedIndex ->
-                selected = selectedIndex
-            }
+            CustomTabRow(tabs = listOf("Short Break", "Pomodoro", "Long Break"), selectedTabIndex = viewModel.stateIndex) { }
         }
     }
 }

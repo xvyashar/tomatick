@@ -1,6 +1,10 @@
 package com.xvyashar.tomatick
 
+import android.Manifest
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -18,24 +22,29 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.xvyashar.tomatick.ui.theme.TomatickTheme
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.res.painterResource
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.xvyashar.tomatick.composables.BottomNavItem
 import com.xvyashar.tomatick.composables.BottomNavigationBar
 import com.xvyashar.tomatick.composables.rdp
 import com.xvyashar.tomatick.composables.rsp
 import com.xvyashar.tomatick.composables.screens.HomeScreen
 import com.xvyashar.tomatick.composables.screens.SettingsScreen
+import com.xvyashar.tomatick.services.TimerService
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,14 +52,72 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TomatickTheme {
-                MainScreen()
+                MainScreen(this)
             }
+        }
+
+        val permissions = mutableListOf<String>()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permissions.add(Manifest.permission.POST_NOTIFICATIONS)
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            permissions.add(Manifest.permission.FOREGROUND_SERVICE)
+
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            permissions.add(Manifest.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK)
+        }
+
+        val permissionRequester = PermissionRequester(
+            activity = this,
+            permissions = permissions,
+            onPermissionDenied = {
+                Toast.makeText(this, "Permission denied. App can't function without these permissions.", Toast.LENGTH_SHORT).show()
+                finish()
+            }
+        )
+
+        permissionRequester.requestPermissions()
+
+        val serviceIntent = Intent(this, TimerService::class.java)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(serviceIntent)
+        } else {
+            startService(serviceIntent)
         }
     }
 }
 
 @Composable
-fun MainScreen() {
+fun MainScreen(activity: MainActivity?, viewModel: TimerViewModel = viewModel()) {
+    if (activity != null) {
+        val lifecycleOwner = LocalLifecycleOwner.current
+
+        // Register/unregister receiver with lifecycle awareness
+        DisposableEffect(lifecycleOwner) {
+            val lifecycle = lifecycleOwner.lifecycle
+
+            val observer = object : DefaultLifecycleObserver {
+                override fun onStart(owner: LifecycleOwner) {
+                    viewModel.registerReceiver(activity.applicationContext)
+                }
+
+                override fun onStop(owner: LifecycleOwner) {
+                    viewModel.unregisterReceiver(activity.applicationContext)
+                }
+            }
+
+            lifecycle.addObserver(observer)
+
+            onDispose {
+                lifecycle.removeObserver(observer)
+                viewModel.unregisterReceiver(activity.applicationContext)
+            }
+        }
+    }
+
     var selectedTab by remember { mutableStateOf(BottomNavItem.Home) }
 
     Scaffold(
@@ -79,7 +146,19 @@ fun MainScreen() {
                     horizontalArrangement = Arrangement.spacedBy(8.rdp)
                 ) {
                     IconButton(
-                        onClick = { /* TODO: reset logic */ },
+                        onClick = {
+                            val serviceIntent = Intent(activity, TimerService::class.java).apply {
+                                action = TimerService.ACTION_RESET
+                            }
+
+                            if (activity != null) {
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                    activity.startForegroundService(serviceIntent)
+                                } else {
+                                    activity.startService(serviceIntent)
+                                }
+                            }
+                        },
                         modifier = Modifier
                             .background(color = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(12.rdp))
                     ) {
@@ -90,17 +169,25 @@ fun MainScreen() {
                         )
                     }
 
-                    var playButtonVector by remember { mutableIntStateOf(R.drawable.play_vector) }
-
                     IconButton(
                         onClick = {
-                            playButtonVector = if (playButtonVector == R.drawable.play_vector) R.drawable.pause_vector else R.drawable.play_vector
+                            val serviceIntent = Intent(activity, TimerService::class.java).apply {
+                                action = TimerService.ACTION_PLAY_PAUSE
+                            }
+
+                            if (activity != null) {
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                    activity.startForegroundService(serviceIntent)
+                                } else {
+                                    activity.startService(serviceIntent)
+                                }
+                            }
                         },
                         modifier = Modifier
                             .background(color = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(12.rdp))
                     ) {
                         Icon(
-                            painter = painterResource(playButtonVector),
+                            painter = painterResource(if (viewModel.isPaused) R.drawable.play_vector else R.drawable.pause_vector),
                             contentDescription = "Play",
                             tint = MaterialTheme.colorScheme.primary
                         )
@@ -124,6 +211,6 @@ fun MainScreen() {
 @Composable
 fun MainScreenPreview() {
     TomatickTheme {
-        MainScreen()
+        MainScreen(null)
     }
 }

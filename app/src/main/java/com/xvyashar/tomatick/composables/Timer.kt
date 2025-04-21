@@ -30,10 +30,12 @@ import androidx.compose.ui.unit.Dp
 fun Timer(
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colorScheme.primary,
-    size: Dp = 200.rdp
+    size: Dp = 200.rdp,
+    text: String,
+    progress: Float
 ) {
     CircularContainer(color = color, size = size, modifier = modifier) {
-        TimerIndicator(Modifier, 1f, "25:00")
+        TimerIndicator(Modifier, progress, text)
     }
 }
 
