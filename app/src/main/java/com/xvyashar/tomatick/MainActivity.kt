@@ -79,14 +79,12 @@ class MainActivity : ComponentActivity() {
         )
 
         permissionRequester.requestPermissions()
+    }
 
-        val serviceIntent = Intent(this, TimerService::class.java)
+    override fun onDestroy() {
+        super.onDestroy()
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(serviceIntent)
-        } else {
-            startService(serviceIntent)
-        }
+
     }
 }
 

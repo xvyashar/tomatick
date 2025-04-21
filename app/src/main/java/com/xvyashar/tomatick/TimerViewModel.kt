@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Build
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -12,6 +13,7 @@ import androidx.lifecycle.ViewModel
 import java.util.Locale
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import com.xvyashar.tomatick.services.TimerService
 
 class TimerViewModel : ViewModel() {
 
@@ -45,6 +47,14 @@ class TimerViewModel : ViewModel() {
             val filter = IntentFilter("com.xvyashar.tomatick.TIMER_TICK")
 
             ContextCompat.registerReceiver(context, timerTickReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED)
+
+            val serviceIntent = Intent(context, TimerService::class.java)
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(serviceIntent)
+            } else {
+                context.startService(serviceIntent)
+            }
 
             isReceiverRegistered = true
         }

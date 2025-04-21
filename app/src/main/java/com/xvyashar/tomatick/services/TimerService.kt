@@ -16,6 +16,7 @@ class TimerService : Service() {
 
         const val ACTION_PLAY_PAUSE = "ACTION_PLAY_PAUSE"
         const val ACTION_RESET = "ACTION_RESET"
+        const val ACTION_UPDATE_DATA = "ACTION_UPDATE_DATA"
     }
 
     private var timer: CountDownTimer? = null
@@ -51,6 +52,21 @@ class TimerService : Service() {
             }
 
             ACTION_RESET -> {
+                timer?.cancel()
+                state = "Pomodoro"
+                remainingSeconds = pomodoroTime
+                shCycle = 1
+                isPaused = true
+                updateNotification()
+                sendTickBroadcast()
+            }
+
+            ACTION_UPDATE_DATA -> {
+                val pomodoroPref = getSharedPreferences("Pomodoro", MODE_PRIVATE)
+                pomodoroTime = pomodoroPref.getLong("pomodoro_time", 25 * 60)
+                shortBreakTime = pomodoroPref.getLong("short_break_time", 5 * 60)
+                longBreakTime = pomodoroPref.getLong("long_break_time", 15 * 60)
+
                 timer?.cancel()
                 state = "Pomodoro"
                 remainingSeconds = pomodoroTime

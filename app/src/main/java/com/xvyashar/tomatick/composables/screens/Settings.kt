@@ -1,6 +1,9 @@
 package com.xvyashar.tomatick.composables.screens
 
+import android.content.Context.MODE_PRIVATE
+import android.content.Intent
 import android.graphics.RectF
+import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -34,6 +37,7 @@ import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -42,9 +46,18 @@ import com.xvyashar.tomatick.composables.rdp
 import com.xvyashar.tomatick.composables.rsp
 import com.xvyashar.tomatick.ui.theme.TextFieldBackground
 import com.xvyashar.tomatick.ui.theme.TextFieldText
+import androidx.core.content.edit
+import com.xvyashar.tomatick.services.TimerService
 
 @Composable
 fun SettingsScreen() {
+    val context = LocalContext.current
+    val pomodoroPref = context.getSharedPreferences("Pomodoro", MODE_PRIVATE)
+
+    var pomodoroValue by remember { mutableStateOf((pomodoroPref.getLong("pomodoro_time", 25 * 60) / 60).toString()) }
+    var shBreakValue by remember { mutableStateOf((pomodoroPref.getLong("short_break_time", 5 * 60) / 60).toString()) }
+    var lBreakValue by remember { mutableStateOf((pomodoroPref.getLong("long_break_time", 15 * 60) / 60).toString()) }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -65,7 +78,25 @@ fun SettingsScreen() {
                     )
 
                     IconButton(
-                        onClick = { /* TODO: reset logic */ },
+                        onClick = {
+                            pomodoroPref.edit(commit = true) {
+                                apply {
+                                    putLong("pomodoro_time", pomodoroValue.toLong() * 60)
+                                    putLong("short_break_time", shBreakValue.toLong() * 60)
+                                    putLong("long_break_time", lBreakValue.toLong() * 60)
+                                }
+                            }
+
+                            val serviceIntent = Intent(context, TimerService::class.java).apply {
+                                action = TimerService.ACTION_UPDATE_DATA
+                            }
+
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                context.startForegroundService(serviceIntent)
+                            } else {
+                                context.startService(serviceIntent)
+                            }
+                        },
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.check_vector),
@@ -98,8 +129,6 @@ fun SettingsScreen() {
                                 fontSize = 16.rsp,
                                 modifier = Modifier.weight(1f)
                             )
-
-                            var pomodoroValue by remember { mutableStateOf("25") }
 
                             OutlinedTextField(
                                 value = pomodoroValue.toString(),
@@ -135,8 +164,6 @@ fun SettingsScreen() {
                                 modifier = Modifier.weight(1f)
                             )
 
-                            var shBreakValue by remember { mutableStateOf("5") }
-
                             OutlinedTextField(
                                 value = shBreakValue.toString(),
                                 onValueChange = { newValue: String ->
@@ -170,8 +197,6 @@ fun SettingsScreen() {
                                 fontSize = 16.rsp,
                                 modifier = Modifier.weight(1f)
                             )
-
-                            var lBreakValue by remember { mutableStateOf("15") }
 
                             OutlinedTextField(
                                 value = lBreakValue.toString(),
