@@ -17,6 +17,7 @@ class TimerService : Service() {
         const val ACTION_PLAY_PAUSE = "ACTION_PLAY_PAUSE"
         const val ACTION_RESET = "ACTION_RESET"
         const val ACTION_UPDATE_DATA = "ACTION_UPDATE_DATA"
+        const val ACTION_STOP = "ACTION_STOP"
     }
 
     private var timer: CountDownTimer? = null
@@ -74,6 +75,18 @@ class TimerService : Service() {
                 isPaused = true
                 updateNotification()
                 sendTickBroadcast()
+            }
+
+            ACTION_STOP -> {
+                timer?.cancel()
+                state = "Pomodoro"
+                remainingSeconds = pomodoroTime
+                shCycle = 1
+                isPaused = true
+                updateNotification()
+                sendTickBroadcast()
+
+                stopSelf()
             }
 
             else -> {
@@ -151,8 +164,13 @@ class TimerService : Service() {
         }
         val resetPendingIntent = PendingIntent.getService(this, 1, resetIntent, PendingIntent.FLAG_IMMUTABLE)
 
+        val stopIntent = Intent(this, TimerService::class.java).apply {
+            action = ACTION_STOP
+        }
+        val stopPendingIntent = PendingIntent.getService(this, 2, stopIntent, PendingIntent.FLAG_IMMUTABLE)
+
         val notificationIntent = Intent(this, MainActivity::class.java)
-        val pendingIntent = PendingIntent.getActivity(this, 2, notificationIntent, PendingIntent.FLAG_IMMUTABLE)
+        val pendingIntent = PendingIntent.getActivity(this, 3, notificationIntent, PendingIntent.FLAG_IMMUTABLE)
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(state)
@@ -161,12 +179,15 @@ class TimerService : Service() {
             .setContentIntent(pendingIntent)
             .setSilent(true)
             .setOngoing(true)
+            .setAutoCancel(false)
             .addAction(
                 if (isPaused) R.drawable.play_vector else R.drawable.pause_vector,
                 if (isPaused) "Play" else "Pause",
                 playPausePendingIntent
             )
             .addAction(R.drawable.reset_vector, "Reset", resetPendingIntent)
+            .addAction(R.drawable.stop_vector, "Stop", stopPendingIntent)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
             .build()
     }
 

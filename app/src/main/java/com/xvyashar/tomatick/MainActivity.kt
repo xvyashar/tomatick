@@ -93,7 +93,6 @@ fun MainScreen(activity: MainActivity?, viewModel: TimerViewModel = viewModel())
     if (activity != null) {
         val lifecycleOwner = LocalLifecycleOwner.current
 
-        // Register/unregister receiver with lifecycle awareness
         DisposableEffect(lifecycleOwner) {
             val lifecycle = lifecycleOwner.lifecycle
 
