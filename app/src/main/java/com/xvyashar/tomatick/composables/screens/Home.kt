@@ -15,11 +15,9 @@ import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.xvyashar.tomatick.TimerViewModel
 import com.xvyashar.tomatick.composables.Timer
@@ -28,16 +26,6 @@ import com.xvyashar.tomatick.composables.rsp
 
 @Composable
 fun HomeScreen(viewModel: TimerViewModel = viewModel()) {
-    val context = LocalContext.current.applicationContext
-
-    DisposableEffect(Unit) {
-        viewModel.registerReceiver(context)
-
-        onDispose {
-            viewModel.unregisterReceiver(context)
-        }
-    }
-
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,

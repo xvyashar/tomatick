@@ -2,11 +2,14 @@ package com.xvyashar.tomatick.services
 
 import android.app.*
 import android.content.Intent
+import android.media.AudioAttributes
+import android.net.Uri
 import android.os.*
 import androidx.core.app.NotificationCompat
 import com.xvyashar.tomatick.MainActivity
 import com.xvyashar.tomatick.R
 import java.util.Locale
+import androidx.core.net.toUri
 
 class TimerService : Service() {
 
@@ -50,7 +53,7 @@ class TimerService : Service() {
             ACTION_PLAY_PAUSE -> {
                 if (isPaused) startTimer() else timer?.cancel()
                 isPaused = !isPaused
-                updateNotification()
+                updateNotification(null)
                 sendTickBroadcast()
             }
 
@@ -60,7 +63,7 @@ class TimerService : Service() {
                 remainingSeconds = pomodoroTime
                 shCycle = 1
                 isPaused = true
-                updateNotification()
+                updateNotification(null)
                 sendTickBroadcast()
             }
 
@@ -76,7 +79,7 @@ class TimerService : Service() {
                 remainingSeconds = pomodoroTime
                 shCycle = 1
                 isPaused = true
-                updateNotification()
+                updateNotification(null)
                 sendTickBroadcast()
             }
 
@@ -86,7 +89,7 @@ class TimerService : Service() {
                 remainingSeconds = pomodoroTime
                 shCycle = 1
                 isPaused = true
-                updateNotification()
+                updateNotification(null)
                 sendTickBroadcast()
 
                 stopSelf()
@@ -97,7 +100,7 @@ class TimerService : Service() {
             }
         }
 
-        startForeground(NOTIFICATION_ID, buildNotification(formatTime(remainingSeconds)))
+        startForeground(NOTIFICATION_ID, buildNotification(formatTime(remainingSeconds), null))
         return START_STICKY
     }
 
@@ -108,7 +111,7 @@ class TimerService : Service() {
             override fun onTick(millisUntilFinished: Long) {
                 remainingSeconds = millisUntilFinished / 1000
                 sendTickBroadcast()
-                updateNotification()
+                updateNotification(null)
             }
 
             override fun onFinish() {
@@ -130,8 +133,9 @@ class TimerService : Service() {
                         remainingSeconds = pomodoroTime
                         shCycle++
                     }
+
                 }
-                updateNotification()
+                updateNotification("android.resource://com.xvyashar.tomatick/${R.raw.bell_6x}".toUri())
                 startTimer()
                 sendTickBroadcast()
             }
@@ -149,14 +153,14 @@ class TimerService : Service() {
         sendBroadcast(intent)
     }
 
-    private fun updateNotification() {
+    private fun updateNotification(sound: Uri?) {
         val timeText = formatTime(remainingSeconds)
-        val notification = buildNotification(timeText)
+        val notification = buildNotification(timeText, sound)
         val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         manager.notify(NOTIFICATION_ID, notification)
     }
 
-    private fun buildNotification(time: String): Notification {
+    private fun buildNotification(time: String, sound: Uri?): Notification {
         val playPauseIntent = Intent(this, TimerService::class.java).apply {
             action = ACTION_PLAY_PAUSE
         }
@@ -175,12 +179,11 @@ class TimerService : Service() {
         val notificationIntent = Intent(this, MainActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(this, 3, notificationIntent, PendingIntent.FLAG_IMMUTABLE)
 
-        return NotificationCompat.Builder(this, CHANNEL_ID)
+        var builder = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(state)
             .setContentText("Remaining: $time")
             .setSmallIcon(R.drawable.timer_vector)
             .setContentIntent(pendingIntent)
-            .setSilent(true)
             .setOngoing(true)
             .setAutoCancel(false)
             .addAction(
@@ -191,7 +194,14 @@ class TimerService : Service() {
             .addAction(R.drawable.reset_vector, "Reset", resetPendingIntent)
             .addAction(R.drawable.stop_vector, "Stop", stopPendingIntent)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .build()
+
+        builder = if (sound != null) {
+            builder.setSound(sound).setSilent(false)
+        } else {
+            builder.setSilent(true)
+        }
+
+        return builder.build()
     }
 
     private fun formatTime(seconds: Long): String {
@@ -202,11 +212,19 @@ class TimerService : Service() {
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val audioAttributes = AudioAttributes.Builder()
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                .build()
+
             val serviceChannel = NotificationChannel(
                 CHANNEL_ID,
                 "Timer Service",
-                NotificationManager.IMPORTANCE_LOW
-            )
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                setSound("android.resource://com.xvyashar.tomatick/${R.raw.bell_6x}".toUri(), audioAttributes)
+            }
+
             val manager = getSystemService(NotificationManager::class.java)
             manager.createNotificationChannel(serviceChannel)
         }
