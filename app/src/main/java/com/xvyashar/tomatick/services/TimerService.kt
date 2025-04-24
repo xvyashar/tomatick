@@ -25,6 +25,7 @@ class TimerService : Service() {
     private var pomodoroTime = 0L
     private var shortBreakTime = 0L
     private var longBreakTime = 0L
+    private var cycleRepeat = 0
 
     private var isPaused = true
     private var state = "Pomodoro"
@@ -39,6 +40,7 @@ class TimerService : Service() {
         pomodoroTime = pomodoroPref.getLong("pomodoro_time", 25 * 60)
         shortBreakTime = pomodoroPref.getLong("short_break_time", 5 * 60)
         longBreakTime = pomodoroPref.getLong("long_break_time", 15 * 60)
+        cycleRepeat = pomodoroPref.getInt("cycle_repeat", 4)
 
         remainingSeconds = pomodoroTime
     }
@@ -67,6 +69,7 @@ class TimerService : Service() {
                 pomodoroTime = pomodoroPref.getLong("pomodoro_time", 25 * 60)
                 shortBreakTime = pomodoroPref.getLong("short_break_time", 5 * 60)
                 longBreakTime = pomodoroPref.getLong("long_break_time", 15 * 60)
+                cycleRepeat = pomodoroPref.getInt("cycle_repeat", 4)
 
                 timer?.cancel()
                 state = "Pomodoro"
@@ -109,7 +112,7 @@ class TimerService : Service() {
             }
 
             override fun onFinish() {
-                if (shCycle == 4) {
+                if (shCycle == cycleRepeat) {
                     if (state == "Pomodoro") {
                         state = "Long Break"
                         remainingSeconds = longBreakTime

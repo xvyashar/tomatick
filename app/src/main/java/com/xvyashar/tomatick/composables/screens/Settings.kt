@@ -15,8 +15,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -57,11 +59,12 @@ fun SettingsScreen() {
     var pomodoroValue by remember { mutableStateOf((pomodoroPref.getLong("pomodoro_time", 25 * 60) / 60).toString()) }
     var shBreakValue by remember { mutableStateOf((pomodoroPref.getLong("short_break_time", 5 * 60) / 60).toString()) }
     var lBreakValue by remember { mutableStateOf((pomodoroPref.getLong("long_break_time", 15 * 60) / 60).toString()) }
+    var cRepeatValue by remember { mutableStateOf((pomodoroPref.getInt("cycle_repeat", 4)).toString()) }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(start = 32.rdp, end = 32.rdp),
+            .padding(start = 32.rdp, end = 32.rdp, top = 24.rdp, bottom = 24.rdp),
         contentAlignment = Alignment.Center
     ) {
         RectangleContainer(color = MaterialTheme.colorScheme.primary, modifier = Modifier
@@ -84,6 +87,7 @@ fun SettingsScreen() {
                                     putLong("pomodoro_time", pomodoroValue.toLong() * 60)
                                     putLong("short_break_time", shBreakValue.toLong() * 60)
                                     putLong("long_break_time", lBreakValue.toLong() * 60)
+                                    putInt("cycle_repeat", cRepeatValue.toInt())
                                 }
                             }
 
@@ -111,7 +115,7 @@ fun SettingsScreen() {
 
                 Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 40.rdp, end = 40.rdp, bottom = 8.rdp), verticalArrangement = Arrangement.spacedBy(24.rdp)) {
+                    .padding(start = 32.rdp, end = 32.rdp, bottom = 8.rdp), verticalArrangement = Arrangement.spacedBy(24.rdp)) {
                     Text(
                         "TIME (MINUTES)",
                         color = Color.LightGray,
@@ -119,7 +123,7 @@ fun SettingsScreen() {
                     )
 
                     Column(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState()),
                         verticalArrangement = Arrangement.spacedBy(16.rdp)
                     ) {
                         Row (verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
@@ -223,6 +227,40 @@ fun SettingsScreen() {
                                 )
                             )
                         }
+
+                        Row (verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                            Text(
+                                "Cycle Repeat",
+                                color = Color.LightGray,
+                                fontSize = 16.rsp,
+                                modifier = Modifier.weight(1f)
+                            )
+
+                            OutlinedTextField(
+                                value = cRepeatValue.toString(),
+                                onValueChange = { newValue: String ->
+                                    if (newValue.all { char -> char.isDigit() }) {
+                                        cRepeatValue = newValue
+                                    }
+                                },
+                                keyboardOptions = KeyboardOptions.Default.copy(
+                                    keyboardType = KeyboardType.Number
+                                ),
+                                singleLine = true,
+                                modifier = Modifier
+                                    .width(100.rdp)
+                                    .background(
+                                        color = TextFieldBackground,
+                                        shape = RoundedCornerShape(18.rdp)
+                                    ),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = Color.Transparent,
+                                    unfocusedBorderColor = Color.Transparent,
+                                    focusedTextColor = TextFieldText,
+                                    unfocusedTextColor = TextFieldText
+                                )
+                            )
+                        }
                     }
                 }
             }
@@ -240,7 +278,7 @@ fun RectangleContainer(
         modifier = modifier
             .graphicsLayer {
                 // Outer soft shadow
-                shadowElevation = 32f
+                shadowElevation = 18f
                 shape = RoundedCornerShape(18)
                 clip = true
             }
