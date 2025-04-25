@@ -27,4 +27,4 @@ Minimalistic pomodoro timer application for Android.
 </p>
 
 ## Install
-👉 [Release v1.0.0](https://github.com/xvyashar/tomatic/releases/tag/v1.0.0)
+👉 [Release v1.0.0](https://github.com/xvyashar/tomatick/releases/tag/v1.0.0)
