@@ -4,6 +4,7 @@ import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.graphics.RectF
 import android.os.Build
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -49,10 +50,13 @@ import com.xvyashar.tomatick.composables.rsp
 import com.xvyashar.tomatick.ui.theme.TextFieldBackground
 import com.xvyashar.tomatick.ui.theme.TextFieldText
 import androidx.core.content.edit
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.xvyashar.tomatick.constants.BottomNavItem
 import com.xvyashar.tomatick.services.TimerService
+import com.xvyashar.tomatick.view_models.UiViewModel
 
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(viewModel: UiViewModel = viewModel<UiViewModel>()) {
     val context = LocalContext.current
     val pomodoroPref = context.getSharedPreferences("Pomodoro", MODE_PRIVATE)
 
@@ -100,6 +104,9 @@ fun SettingsScreen() {
                             } else {
                                 context.startService(serviceIntent)
                             }
+
+                            Toast.makeText(context, "Settings saved successfully!", Toast.LENGTH_SHORT).show()
+                            viewModel.selectTab(BottomNavItem.Home)
                         },
                     ) {
                         Icon(

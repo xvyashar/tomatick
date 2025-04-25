@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.xvyashar.tomatick.constants.BottomNavItem
 
 @Composable
 fun BottomNavigationBar(
@@ -49,9 +50,4 @@ fun BottomNavigationBar(
             )
         }
     }
-}
-
-enum class BottomNavItem(val label: String, val icon: ImageVector) {
-    Home("Home", Icons.Default.Home),
-    Settings("Settings", Icons.Default.Settings)
 }

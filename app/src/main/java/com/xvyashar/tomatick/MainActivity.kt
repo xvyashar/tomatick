@@ -23,13 +23,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.xvyashar.tomatick.ui.theme.TomatickTheme
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -38,13 +34,15 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.xvyashar.tomatick.composables.BottomNavItem
 import com.xvyashar.tomatick.composables.BottomNavigationBar
 import com.xvyashar.tomatick.composables.rdp
 import com.xvyashar.tomatick.composables.rsp
 import com.xvyashar.tomatick.composables.screens.HomeScreen
 import com.xvyashar.tomatick.composables.screens.SettingsScreen
+import com.xvyashar.tomatick.constants.BottomNavItem
 import com.xvyashar.tomatick.services.TimerService
+import com.xvyashar.tomatick.view_models.TimerViewModel
+import com.xvyashar.tomatick.view_models.UiViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -89,7 +87,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen(activity: MainActivity?, viewModel: TimerViewModel = viewModel()) {
+fun MainScreen(activity: MainActivity?, tViewModel: TimerViewModel = viewModel<TimerViewModel>(), uViewModel: UiViewModel = viewModel<UiViewModel>()) {
     if (activity != null) {
         val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -98,11 +96,11 @@ fun MainScreen(activity: MainActivity?, viewModel: TimerViewModel = viewModel())
 
             val observer = object : DefaultLifecycleObserver {
                 override fun onStart(owner: LifecycleOwner) {
-                    viewModel.registerReceiver(activity.applicationContext)
+                    tViewModel.registerReceiver(activity.applicationContext)
                 }
 
                 override fun onStop(owner: LifecycleOwner) {
-                    viewModel.unregisterReceiver(activity.applicationContext)
+                    tViewModel.unregisterReceiver(activity.applicationContext)
                 }
             }
 
@@ -110,18 +108,16 @@ fun MainScreen(activity: MainActivity?, viewModel: TimerViewModel = viewModel())
 
             onDispose {
                 lifecycle.removeObserver(observer)
-                viewModel.unregisterReceiver(activity.applicationContext)
+                tViewModel.unregisterReceiver(activity.applicationContext)
             }
         }
     }
 
-    var selectedTab by remember { mutableStateOf(BottomNavItem.Home) }
-
     Scaffold(
         bottomBar = {
             BottomNavigationBar (
-                selectedTab = selectedTab,
-                onTabSelected = { selectedTab = it },
+                selectedTab = uViewModel.selectedTab,
+                onTabSelected = { uViewModel.selectTab(it) },
             )
         },
         topBar = {
@@ -184,7 +180,7 @@ fun MainScreen(activity: MainActivity?, viewModel: TimerViewModel = viewModel())
                             .background(color = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(12.rdp))
                     ) {
                         Icon(
-                            painter = painterResource(if (viewModel.isPaused) R.drawable.play_vector else R.drawable.pause_vector),
+                            painter = painterResource(if (tViewModel.isPaused) R.drawable.play_vector else R.drawable.pause_vector),
                             contentDescription = "Play",
                             tint = MaterialTheme.colorScheme.primary
                         )
@@ -194,7 +190,7 @@ fun MainScreen(activity: MainActivity?, viewModel: TimerViewModel = viewModel())
         },
     ) {
         Box(modifier = Modifier.padding(it)) {
-            AnimatedContent(targetState = selectedTab) { screen ->
+            AnimatedContent(targetState = uViewModel.selectedTab) { screen ->
                 when (screen) {
                     BottomNavItem.Home -> HomeScreen()
                     BottomNavItem.Settings -> SettingsScreen()

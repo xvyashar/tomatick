@@ -19,7 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Alignment
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.xvyashar.tomatick.TimerViewModel
+import com.xvyashar.tomatick.view_models.TimerViewModel
 import com.xvyashar.tomatick.composables.Timer
 import com.xvyashar.tomatick.composables.rdp
 import com.xvyashar.tomatick.composables.rsp
